@@ -107,11 +107,13 @@ export async function getPlayerFullProfile(
 
 	const matches = player_matches.map(processMatch).filter((match): match is PlayerMatch => match !== undefined);
 
+    const sorted_matches = matches.sort((a, b) => b.match_date.getTime() - a.match_date.getTime());
+
 	const extended_stats = calculateExtendedStats(matches, playerId);
 
 	return {
 		...player_profile,
-		matches,
+		matches: sorted_matches,
 		extended_stats,
 	} as PlayerFullProfile;
 }

@@ -148,11 +148,11 @@ function processMatch(match: any, playerId: string): PlayerMatch | undefined {
     if (!player_team) return undefined;
 
     const match_rounds = opponent_team 
-        ? Math.max(player_team.rounds_won, opponent_team.rounds_won)
-        : player_team.rounds_won;
+        ? Math.max(player_team.rounds_played, opponent_team.rounds_played)
+        : player_team.rounds_played;
 
     const winner = calculateWinner(spectre_match, player_team, opponent_team);
-    
+
     return {
         id: spectre_match.id,
         region: spectre_match.region,
@@ -175,16 +175,16 @@ function processMatch(match: any, playerId: string): PlayerMatch | undefined {
  * @param spectre_match - The match data.
  * @param player_team - The player's team data.
  * @param opponent_team - The opponent's team data (can be null).
- * @returns -1 for draw, 0 for loss, 1 for win.
+ * @returns The team_index of the winner. -1 for draw
  */
 function calculateWinner(spectre_match: any, player_team: any, opponent_team: any | null): -1 | 0 | 1 {
     if (spectre_match.surrendered_team !== -1) {
-        return spectre_match.surrendered_team ?? 1; // If there's no opponent, assume win
+        return spectre_match.surrendered_team === player_team.team_index ? opponent_team.team_index : player_team.team_index;
     }
-    if (!opponent_team) return 1; // If there's no opponent, it's a win
+    if (!opponent_team) return player_team.team_index; // If there's no opponent, it's a win
 
-    return player_team.rounds_won > opponent_team.rounds_won ? 1 :
-        player_team.rounds_won < opponent_team.rounds_won ? 0 : -1;
+    return player_team.rounds_won > opponent_team.rounds_won ? player_team.team_index :
+        player_team.rounds_won < opponent_team.rounds_won ? opponent_team.team_index : -1;
 }
 
 /**

@@ -105,7 +105,7 @@ export async function getPlayerFullProfile(
 		return { ...player_profile, matches: [] };
 	}
 
-	const matches = player_matches.map(processMatch).filter((match): match is PlayerMatch => match !== undefined);
+	const matches = player_matches.map((match) => processMatch(match, playerId)).filter((match): match is PlayerMatch => match !== undefined);
 
     const sorted_matches = matches.sort((a, b) => b.match_date.getTime() - a.match_date.getTime());
 
@@ -121,9 +121,10 @@ export async function getPlayerFullProfile(
 /**
  * Processes a raw match data into a structured PlayerMatch object.
  * @param match - The raw match data from the database.
+ * @param playerId - The ID of the player whose profile we're processing.
  * @returns A structured PlayerMatch object or undefined if processing fails.
  */
-function processMatch(match: any): PlayerMatch | undefined {
+function processMatch(match: any, playerId: string): PlayerMatch | undefined {
     if (!match?.spectre_match_team?.spectre_match) return undefined;
 
     const spectre_match = match.spectre_match_team.spectre_match;
@@ -131,8 +132,20 @@ function processMatch(match: any): PlayerMatch | undefined {
 
     if (!spectre_match_teams || spectre_match_teams.length === 0) return undefined;
 
-    const player_team = spectre_match_teams[0];
-    const opponent_team = spectre_match_teams.length > 1 ? spectre_match_teams[1] : null;
+    let player_team = null;
+    let opponent_team = null;
+
+    // Determine which team is the player's team
+    for (const team of spectre_match_teams) {
+        if (team.spectre_match_player?.some((player: any) => player.player.toLowerCase() === playerId.toLowerCase())) {
+            player_team = team;
+        } else {
+            opponent_team = team;
+        }
+    }
+
+    // If we couldn't find the player's team, return undefined
+    if (!player_team) return undefined;
 
     const match_rounds = opponent_team 
         ? Math.max(player_team.rounds_won, opponent_team.rounds_won)

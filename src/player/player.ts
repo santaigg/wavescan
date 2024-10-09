@@ -1,4 +1,4 @@
-import { Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
+import type { Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
 import { Database } from "../database";
 import { Steam } from "../steam";
 
@@ -67,9 +67,8 @@ export async function getPlayerProfile(
 			},
 		};
 		return { ...player_profile };
-	} else {
-		return { error: "Player not found" };
 	}
+		return { error: "Player not found" };
 }
 
 /**

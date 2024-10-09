@@ -3,8 +3,9 @@ import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { Database } from "./database";
 import { Steam } from "./steam";
-import { getPlayerFullProfile, getPlayerProfile } from "./player/info";
+import { getPlayerFullProfile, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
+import { addMatch, checkMatch, getMatch } from "./match/match";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -68,6 +69,24 @@ const app = new Elysia()
 						const player_profile = await getPlayerFullProfile(playerId);
 						return { ...player_profile };
 					}),
+			)
+			.group("/match", (app) =>
+				app
+					.get("/:matchId", async ({ params }) => {
+						const { matchId } = params;
+						const match = await getMatch(matchId);
+						return { ...match };
+					})
+					.get("/:matchId/check", async ({ params }) => {
+						const { matchId } = params;
+						const match = await checkMatch(matchId);
+						return { ...match };
+					})
+					.get("/:matchId/add", async ({ params }) => {
+						const { matchId } = params;
+						const match = await addMatch(matchId);
+						return { ...match };
+					})
 			),
 	)
 	.listen(3003);

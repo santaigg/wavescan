@@ -360,9 +360,9 @@ function updateExtendedStats(stats: PlayerExtendedStats | SeasonStats, player: a
 	stats.total_damage_dealt += player.damage_dealt;
 	stats.total_rounds_played += match.rounds;
 
-	if (match.winner === 1) stats.total_wins++;
-	else if (match.winner === 0) stats.total_losses++;
-	else stats.total_draws++;
+    if (match.winner === match.player_team.team_index) stats.total_wins++;
+    else if (match.winner === -1) stats.total_draws++;
+    else stats.total_losses++;
 
 	stats.top_damage_dealt = Math.max(stats.top_damage_dealt, player.damage_dealt);
 	stats.top_kills = Math.max(stats.top_kills, player.kills);

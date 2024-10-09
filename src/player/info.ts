@@ -152,7 +152,7 @@ function processMatch(match: any, playerId: string): PlayerMatch | undefined {
         : player_team.rounds_won;
 
     const winner = calculateWinner(spectre_match, player_team, opponent_team);
-
+    
     return {
         id: spectre_match.id,
         region: spectre_match.region,
@@ -298,6 +298,7 @@ function calculateExtendedStats(matches: PlayerMatch[], playerId: string): Playe
             extended_stats.map_stats[match.map] = initializeExtendedStats();
         }
         updateExtendedStats(extended_stats.map_stats[match.map], player, match);
+        extended_stats.map_stats[match.map].map = match.map;
 
         if (player.sponsor_id && !extended_stats.sponsor_stats[player.sponsor_id]) {
             extended_stats.sponsor_stats[player.sponsor_id] = {

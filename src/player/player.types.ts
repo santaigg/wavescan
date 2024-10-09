@@ -118,7 +118,7 @@ export interface PlayerFullProfile extends PlayerProfile {
     extended_stats?: {
       season_stats: { [key: string]: SeasonStats },
       last_20_matches_avg_stats: PlayerExtendedStats,
-      map_stats: { [key: string]: PlayerExtendedStats },
+      map_stats: { [key: string]: MapStats },
       sponsor_stats: { [key: string]: SponsorStats },
     }
   }

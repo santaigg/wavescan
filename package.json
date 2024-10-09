@@ -1,15 +1,25 @@
 {
-  "name": "wavescan",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "wavescan",
+	"version": "1.0.50",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch src/index.ts",
+		"start": "bun run src/index.ts",
+		"format": "biome format --write .",
+		"lint": "biome check --write ."
+	},
+	"dependencies": {
+		"@elysiajs/bearer": "^1.1.2",
+		"@elysiajs/cors": "^1.1.1",
+		"@elysiajs/swagger": "^1.1.5",
+		"@supabase/supabase-js": "^2.45.4",
+		"elysia": "latest",
+		"steamapi": "^3.0.12"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.3",
+		"bun-types": "latest",
+		"supabase": "^1.203.0"
+	},
+	"module": "src/index.js"
 }

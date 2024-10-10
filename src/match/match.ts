@@ -65,8 +65,11 @@ export async function addMatch(matchId: string) {
 
     // Checks if the match exists, if not it will call the game service to add the match
     const matchExistsInGameService = await checkMatch(lowerCaseMatchId);
-    if (matchExistsInGameService.success) {
-        return { success: true, game_service_response: matchExistsInGameService.game_service_response };
+    if (!matchExistsInGameService.success) {
+        if(matchExistsInGameService.error) {
+            return { success: false, error: matchExistsInGameService.error };
+        }
+        return { success: false, error: "Match does not exist in game service" };
     }
 
     const addMatch = await fetch(`${process.env.SMOKESHIFT_APP_URL}/data-dump-service/dump-match/${lowerCaseMatchId}`);

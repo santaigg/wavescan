@@ -26,6 +26,7 @@ const app = new Elysia()
 				app
 					.get("/:playerId", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId - ", playerId);
 						// Select all related data for the player
 						const { data, error } = await db.client
 							.from("spectre_player")
@@ -37,6 +38,7 @@ const app = new Elysia()
 					})
 					.get("/:playerId/stats", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/stats - ", playerId);
 						const { data, error } = await db.client
 							.from("spectre_player_stats")
 							.select("*")
@@ -45,6 +47,7 @@ const app = new Elysia()
 					})
 					.get("/:playerId/banner", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/banner - ", playerId);
 						const { data, error } = await db.client
 							.from("spectre_player_banner")
 							.select("*")
@@ -53,6 +56,7 @@ const app = new Elysia()
 					})
 					.get("/:playerId/account", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/account - ", playerId);
 						const { data, error } = await db.client
 							.from("spectre_player_account")
 							.select("*")
@@ -61,11 +65,13 @@ const app = new Elysia()
 					})
 					.get("/:playerId/profile", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/profile - ", playerId);
 						const player_profile = await getPlayerProfile(playerId);
 						return { ...player_profile };
 					})
 					.get("/:playerId/full_profile", async ({ params }) => {
 						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/full_profile - ", playerId);
 						const player_profile = await getPlayerFullProfile(playerId);
 						return { ...player_profile };
 					}),
@@ -74,16 +80,19 @@ const app = new Elysia()
 				app
 					.get("/:matchId", async ({ params }) => {
 						const { matchId } = params;
+						console.log("[Match Route] - [GET] - /:matchId - ", matchId);
 						const match = await getMatch(matchId);
 						return { ...match };
 					})
 					.get("/:matchId/check", async ({ params }) => {
 						const { matchId } = params;
+						console.log("[Match Route] - [GET] - /:matchId/check - ", matchId);
 						const match = await checkMatch(matchId);
 						return { ...match };
 					})
 					.get("/:matchId/add", async ({ params }) => {
 						const { matchId } = params;
+						console.log("[Match Route] - [GET] - /:matchId/add - ", matchId);
 						const match = await addMatch(matchId);
 						return { ...match };
 					})

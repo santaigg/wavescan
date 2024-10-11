@@ -12,7 +12,14 @@ const db = Database.getInstance();
 const steam = Steam.getInstance();
 
 const app = new Elysia()
-	.use(swagger())
+	.use(swagger({
+		documentation: {
+			info: {
+				title: "Wavescan API (Santai.GG)",
+				version: "1.0.0",
+			},
+		},
+	}))
 	.use(bearer())
 	.use(cors({
 		origin: "*",
@@ -36,6 +43,12 @@ const app = new Elysia()
 							)
 							.eq("id", playerId);
 						return { data, error };
+					}, {
+						detail: {
+							summary: "Get Player",
+							description: "",
+							tags: ["Player"],
+						},
 					})
 					.get("/:playerId/stats", async ({ params }) => {
 						const { playerId } = params;
@@ -45,6 +58,12 @@ const app = new Elysia()
 							.select("*")
 							.eq("player", playerId);
 						return { data, error };
+					}, {
+						detail: {
+							summary: "Get Player Stats",
+							description: "",
+							tags: ["Player"],
+						},
 					})
 					.get("/:playerId/banner", async ({ params }) => {
 						const { playerId } = params;
@@ -54,6 +73,12 @@ const app = new Elysia()
 							.select("*")
 							.eq("player", playerId);
 						return { data, error };
+					}, {
+						detail: {
+							summary: "Get Player Banner",
+							description: "",
+							tags: ["Player"],
+						},
 					})
 					.get("/:playerId/account", async ({ params }) => {
 						const { playerId } = params;
@@ -63,19 +88,73 @@ const app = new Elysia()
 							.select("*")
 							.eq("player", playerId);
 						return { data, error };
+					}, {
+						detail: {
+							summary: "Get Player Account",
+							description: "",
+							tags: ["Player"],
+						},
 					})
 					.get("/:playerId/profile", async ({ params }) => {
 						const { playerId } = params;
 						console.log("[Player Route] - [GET] - /:playerId/profile - ", playerId);
 						const player_profile = await getPlayerProfile(playerId);
 						return { ...player_profile };
+					}, {
+						detail: {
+							summary: "Get Player Profile",
+							description: "",
+							tags: ["Player"],
+						},
 					})
 					.get("/:playerId/full_profile", async ({ params }) => {
 						const { playerId } = params;
 						console.log("[Player Route] - [GET] - /:playerId/full_profile - ", playerId);
 						const player_profile = await getPlayerFullProfile(playerId);
 						return { ...player_profile };
-					}),
+					}, {
+						detail: {
+							summary: "Get Full Player Profile",
+							description: "",
+							tags: ["Player"],
+						},
+					})
+					.get("/steam/:steamId", async ({ params }) => {
+						const { steamId } = params;
+						console.log("[Player Route] - [GET] - /steam/:steamId - ", steamId);
+						const steam_profile = await getPlayerIdFromSteamId(steamId);
+						return { ...steam_profile };
+					}, {
+						detail: {
+							summary: "Get Player ID from Steam ID",
+							description: "",
+							tags: ["Player"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean",
+													},
+													player_id: {
+														type: "string",
+													},
+													error: {
+														type: "string",
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					})
 			)
 			.group("/match", (app) =>
 				app
@@ -96,15 +175,6 @@ const app = new Elysia()
 						console.log("[Match Route] - [GET] - /:matchId/add - ", matchId);
 						const match = await addMatch(matchId);
 						return { ...match };
-					})
-			)
-			.group("/steam", (app) =>
-				app
-					.get("/:steamId", async ({ params }) => {
-						const { steamId } = params;
-						console.log("[Steam Route] - [GET] - /:steamId - ", steamId);
-						const steam_profile = await getPlayerIdFromSteamId(steamId);
-						return { ...steam_profile };
 					})
 			)
 	)

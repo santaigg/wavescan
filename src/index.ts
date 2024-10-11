@@ -6,6 +6,7 @@ import { Steam } from "./steam";
 import { getPlayerFullProfile, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
+import { getPlayerIdFromSteamId } from "./steam/steam";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -96,7 +97,16 @@ const app = new Elysia()
 						const match = await addMatch(matchId);
 						return { ...match };
 					})
-			),
+			)
+			.group("/steam", (app) =>
+				app
+					.get("/:steamId", async ({ params }) => {
+						const { steamId } = params;
+						console.log("[Steam Route] - [GET] - /:steamId - ", steamId);
+						const steam_profile = await getPlayerIdFromSteamId(steamId);
+						return { ...steam_profile };
+					})
+			)
 	)
 	.listen(3003);
 

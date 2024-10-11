@@ -19,7 +19,7 @@ const app = new Elysia()
 				version: "1.0.0",
 			},
 		},
-		path: "/api/v1",
+		path: "/api/v1/swagger",
 	}))
 	.use(bearer())
 	.use(cors({
@@ -127,7 +127,7 @@ const app = new Elysia()
 						return { ...steam_profile };
 					}, {
 						detail: {
-							summary: "Get Player ID from Steam ID",
+							summary: "Get Player ID from SteamID64",
 							description: "",
 							tags: ["Player"],
 							responses: {

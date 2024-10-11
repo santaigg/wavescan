@@ -19,6 +19,7 @@ const app = new Elysia()
 				version: "1.0.0",
 			},
 		},
+		path: "/api/v1",
 	}))
 	.use(bearer())
 	.use(cors({

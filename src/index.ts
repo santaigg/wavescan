@@ -166,6 +166,33 @@ const app = new Elysia()
 							summary: "Get Player Rank From GameService",
 							description: "",
 							tags: ["Player"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean",
+													},
+													solo_rank: {
+														type: "number",
+													},
+													team_rank: {
+														type: "number",
+													},
+													error: {
+														type: "string",
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 					})
 			)

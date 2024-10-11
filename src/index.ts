@@ -3,7 +3,7 @@ import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { Database } from "./database";
 import { Steam } from "./steam";
-import { getPlayerFullProfile, getPlayerProfile } from "./player/player";
+import { getGameRanks, getPlayerFullProfile, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
@@ -154,6 +154,18 @@ const app = new Elysia()
 									},
 								},
 							},
+						},
+					})
+					.get("/:playerId/game_ranks", async ({ params }) => {
+						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/game_ranks - ", playerId);
+						const game_ranks = await getGameRanks(playerId);
+						return { ...game_ranks };
+					}, {
+						detail: {
+							summary: "Get Player Rank From GameService",
+							description: "",
+							tags: ["Player"],
 						},
 					})
 			)

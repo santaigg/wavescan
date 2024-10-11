@@ -436,3 +436,29 @@ function initializeSeasonStats(season: string): SeasonStats {
 		top_rank_rating: 0
 	};
 }
+
+export async function getGameRanks(playerId: string): Promise<{ success: boolean, error?: string, game_ranks?: any }> {
+	try {
+		const game_ranks_req = await fetch(`https://collective-production.up.railway.app/getPlayerRankData/${playerId}`);
+		const game_ranks = await game_ranks_req.json();
+
+		if (game_ranks.error) {
+			return { success: false, error: game_ranks.error };
+		}
+
+		if(game_ranks?.soloRank === null || game_ranks?.teamRank === null || game_ranks?.soloRank === undefined || game_ranks?.teamRank === undefined) {
+			return { success: false, error: "Player not found" };
+		}
+
+		if(game_ranks.soloRank === "ERROR" || game_ranks.teamRank === "ERROR") {
+			return { success: false, error: "Player not found" };
+		}
+
+		return { success: true, ...{
+			solo_rank: game_ranks.soloRank,
+			team_rank: game_ranks.teamRank,
+		} };
+	} catch (error) {
+		return { success: false, error: "Failed to fetch game ranks" };
+	}
+}

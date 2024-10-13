@@ -1,15 +1,28 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
+import * as Sentry from "@sentry/bun";
 import { Database } from "./database";
 import { Steam } from "./steam";
 import { getGameRanks, getPlayerFullProfile, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
+import { dumpPlayer } from "./dump/dump";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
+
+
+if (!process.env.SENTRY_DSN) {
+	throw new Error("SENTRY_DSN is not set");
+}
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  // Tracing
+  tracesSampleRate: 1.0, // Capture 100% of the transactions
+});
 
 const app = new Elysia()
 	.use(swagger({
@@ -193,6 +206,18 @@ const app = new Elysia()
 									},
 								},
 							},
+						},
+					})
+					.get("/:playerId/dump", async ({ params }) => {
+						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/dump - ", playerId);
+						const dump = await dumpPlayer(playerId);
+						return { ...dump };
+					}, {
+						detail: {
+							summary: "Dump Player Matches",
+							description: "",
+							tags: ["Player"],
 						},
 					})
 			)

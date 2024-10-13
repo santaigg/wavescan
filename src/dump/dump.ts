@@ -18,8 +18,17 @@ export async function dumpPlayer(playerId: string) {
         id: string;
         last_updated: number;
         initially_dumped: boolean;
+        in_progress: boolean;
     } | null;
     if (cached && cached !== null) {
+        // If the player is currently being dumped, return an error.
+        if (cached.in_progress) {
+            return {
+                success: false,
+                error: "Player is currently being dumped!",
+                error_code: "IN_PROGRESS"
+            }
+        }
         // Check cache expiration. 
         // If it's been less than 30 minutes and the player was not initially dumped, do nothing.
         if (Date.now() - cached.last_updated < 1800000 && cached.initially_dumped === false) {
@@ -44,6 +53,12 @@ export async function dumpPlayer(playerId: string) {
             id: lowerCasePlayerId,
             last_updated: Date.now(),
             initially_dumped: false,
+            in_progress: true,
+        });
+    } else {
+        await client.set(cache_key, {
+        ...cached,
+            in_progress: true,
         });
     }
 
@@ -68,6 +83,7 @@ async function dumpPlayerAsync(playerId: string, cache_key: string) {
                 id: playerId,
                 last_updated: Date.now(),
                 initially_dumped: true,
+                in_progress: false,
             });
         }
     } catch (error) {

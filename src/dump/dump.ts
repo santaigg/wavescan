@@ -13,7 +13,7 @@ export async function dumpPlayer(playerId: string) {
     
     const client = Redis.getInstance().client;
     
-    const cache_key = `ws_dump_${lowerCasePlayerId}`;
+    const cache_key = `player_dump:${lowerCasePlayerId}`;
     const cached = await client.get(cache_key) as {
         id: string;
         last_updated: number;

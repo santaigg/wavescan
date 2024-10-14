@@ -1,75 +1,74 @@
 import { Redis } from "../redis";
 import { validPlayerId } from "../player/player";
-export async function dumpPlayer(playerId: string) {
-    const lowerCasePlayerId = playerId.toLowerCase();
 
-    // Validate the player id
+const QUEUE_KEY = 'wv:player_dump_queue';
+const PRIORITY_QUEUE_KEY = 'wv:player_dump_priority_queue';
+interface DumpPlayerResult {
+    success: boolean;
+    error?: string;
+    error_code?: string;
+    message?: string;
+    queue_position?: number;
+    is_priority?: boolean;
+}
+
+export async function dumpPlayer(playerId: string): Promise<DumpPlayerResult> {
+    const lowerCasePlayerId = playerId.toLowerCase();
     if (!validPlayerId(lowerCasePlayerId)) {
-        return {
-            success: false,
-            error: "Invalid player id"
-        }
+        return { success: false, error: "Invalid player id" };
     }
     
     const client = Redis.getInstance().client;
-    
-    const cache_key = `player_dump:${lowerCasePlayerId}`;
+    const cache_key = `wv:player_dump:${lowerCasePlayerId}`;
     const cached = await client.get(cache_key) as {
         id: string;
         last_updated: number;
         initially_dumped: boolean;
-        in_progress: boolean;
     } | null;
-    if (cached && cached !== null) {
-        // If the player is currently being dumped, return an error.
-        if (cached.in_progress) {
-            return {
-                success: false,
-                error: "Player is currently being dumped!",
-                error_code: "IN_PROGRESS"
-            }
-        }
-        // Check cache expiration. 
-        // If it's been less than 30 minutes and the player was not initially dumped, do nothing.
-        if (Date.now() - cached.last_updated < 1800000 && cached.initially_dumped === false) {
-            return {
-                success: false,
-                error: "Player already dumped recently!"
-            }
-        }
 
-        // If it's been less than 10 minutes and the player was initially dumped, do nothing.
-        if (Date.now() - cached.last_updated >= 600000 && cached.initially_dumped === true) {
-            return {
-                success: false,
-                error: "Player already dumped recently!"
-            }
+    // Check if player is already in either queue
+    const inPriorityQueue = await client.lpos(PRIORITY_QUEUE_KEY, lowerCasePlayerId);
+    const inRegularQueue = await client.lpos(QUEUE_KEY, lowerCasePlayerId);
+
+    if (inPriorityQueue !== null || inRegularQueue !== null) {
+        return { success: false, error: "Player is already in the dump queue!", error_code: "IN_QUEUE" };
+    }
+
+    if (cached) {
+        if (Date.now() - cached.last_updated < 1800000 && !cached.initially_dumped) {
+            return { success: false, error: "Player already dumped recently!" };
+        }
+        if (Date.now() - cached.last_updated < 600000 && cached.initially_dumped) {
+            return { success: false, error: "Player already dumped recently!" };
         }
     }
 
-    // If the cache doesn't exist, create it with initially_dumped set to false.
-    if (!cached) {
-        await client.set(cache_key, {
-            id: lowerCasePlayerId,
-            last_updated: Date.now(),
-            initially_dumped: false,
-            in_progress: true,
-        });
+    let queuePosition;
+    let isPriority = false;
+
+    if (cached?.initially_dumped) {
+        // Player has been dumped before, add to priority queue
+        queuePosition = await client.llen(PRIORITY_QUEUE_KEY);
+        await client.rpush(PRIORITY_QUEUE_KEY, lowerCasePlayerId);
+        isPriority = true;
     } else {
-        await client.set(cache_key, {
-        ...cached,
-            in_progress: true,
-        });
+        // New player or never fully dumped, add to regular queue
+        queuePosition = await client.llen(QUEUE_KEY);
+        await client.rpush(QUEUE_KEY, lowerCasePlayerId);
     }
-
-    // Start the dump process asynchronously
-    dumpPlayerAsync(lowerCasePlayerId, cache_key);
+    
+    await client.set(cache_key, {
+        id: lowerCasePlayerId,
+        last_updated: Date.now(),
+        initially_dumped: cached ? cached.initially_dumped : false,
+    });
 
     return {
         success: true,
-        message: "Dump process initiated. It may take some time to complete."
+        message: isPriority ? "Player added to priority dump queue." : "Player added to dump queue.",
+        queue_position: queuePosition + 1,
+        is_priority: isPriority
     };
-    
 }
 
 async function dumpPlayerAsync(playerId: string, cache_key: string) {

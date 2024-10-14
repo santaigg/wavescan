@@ -8,7 +8,7 @@ import { getGameRanks, getPlayerFullProfile, getPlayerProfile } from "./player/p
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
-import { dumpPlayer } from "./dump/dump";
+import { dumpPlayer, getDumpStatus } from "./dump/dump";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -217,6 +217,18 @@ const app = new Elysia()
 						detail: {
 							summary: "Dump Player Matches",
 							description: "",
+							tags: ["Player"],
+						},
+					})
+					.get("/:playerId/dump_status", async ({ params }) => {
+						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/dump_status - ", playerId);
+						const dump_status = await getDumpStatus(playerId);
+						return { ...dump_status };
+					}, {
+						detail: {
+							summary: "Get Player Dump Status",
+							description: "Get the dump status of a player. This includes if they've been initially dumped, if they're currently being dumped, and their dump status.",
 							tags: ["Player"],
 						},
 					})

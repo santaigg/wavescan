@@ -71,21 +71,33 @@ export async function dumpPlayer(playerId: string): Promise<DumpPlayerResult> {
     };
 }
 
-async function dumpPlayerAsync(playerId: string, cache_key: string) {
+// Function that checks if a player has been initially dumped, if they're currently being dumped, and their dump status.
+export async function getDumpStatus(playerId: string): Promise<{
+    success: boolean;
+    is_priority: boolean;
+    queue_position: number | null;
+    initially_dumped: boolean;
+    in_progress: boolean;
+}> {
+    const lowerCasePlayerId = playerId.toLowerCase();
     const client = Redis.getInstance().client;
-    try {
-        const dump_player_res = await fetch(`${process.env.SMOKESHIFT_APP_URL}/data-dump-service/dump-player-matches/${playerId}`);
-        const dump_player = await dump_player_res.json();
+    const cache_key = `wv:player_dump:${lowerCasePlayerId}`;
+    const cached = await client.get(cache_key) as {
+        id: string;
+        last_updated: number;
+        initially_dumped: boolean;
+    } | null;
 
-        if (dump_player?.success) {
-            await client.set(cache_key, {
-                id: playerId,
-                last_updated: Date.now(),
-                initially_dumped: true,
-                in_progress: false,
-            });
-        }
-    } catch (error) {
-        console.error(`Error dumping player ${playerId}:`, error);
+    let queue_position: number | null = null;
+
+    queue_position = await client.lpos(QUEUE_KEY, lowerCasePlayerId);
+
+    return {
+        success: true,
+        is_priority: cached?.initially_dumped ?? false,
+        queue_position: queue_position ? queue_position + 1 : -1,
+        initially_dumped: cached?.initially_dumped ?? false,
+        in_progress: queue_position !== null,
     }
 }
+

@@ -685,6 +685,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_solo_ranked_leaderboard: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          display_name: string
+          current_solo_rank: number
+          rank_rating: number
+        }[]
+      }
       search_players_by_display_name: {
         Args: {
           name: string

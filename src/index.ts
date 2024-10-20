@@ -10,6 +10,7 @@ import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
 import { dumpPlayer, getDumpStatus } from "./dump/dump";
 import { searchPlayer } from "./search/search";
+import { getSoloRankedLeaderboard } from "./leaderboard/leaderboard";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -272,6 +273,19 @@ const app = new Elysia()
 								},
 							})
 					)
+			)
+			.group("/leaderboard", (app) =>
+				app
+					.get("/solo_ranked", async () => {
+						const leaderboard = await getSoloRankedLeaderboard();
+						return { ...leaderboard };
+					}, {
+						detail: {
+							summary: "Get Solo Ranked Leaderboard",
+							description: "",
+							tags: ["Leaderboard"],
+						},
+					})
 			)
 	)
 	.listen(3003);

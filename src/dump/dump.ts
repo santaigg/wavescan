@@ -78,6 +78,7 @@ export async function getDumpStatus(playerId: string): Promise<{
     queue_position: number | null;
     initially_dumped: boolean;
     in_progress: boolean;
+    last_updated: number | null;
 }> {
     const lowerCasePlayerId = playerId.toLowerCase();
     const client = Redis.getInstance().client;
@@ -101,7 +102,8 @@ export async function getDumpStatus(playerId: string): Promise<{
         is_priority: cached?.initially_dumped ?? false,
         queue_position: queue_position ? queue_position + 1 : -1,
         initially_dumped: cached?.initially_dumped ?? false,
-        in_progress: queue_position !== null
+        in_progress: queue_position !== null,
+        last_updated: cached?.last_updated ?? null
     }
 }
 

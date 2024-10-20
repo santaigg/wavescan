@@ -13,7 +13,7 @@ export async function getSoloRankedLeaderboard() {
 
     if (cachedLeaderboard) {
         console.log('Cache hit for solo ranked leaderboard');
-        return { data: cachedLeaderboard };
+        return { leaderboard: cachedLeaderboard };
     }
 
     // If not in cache, fetch from database

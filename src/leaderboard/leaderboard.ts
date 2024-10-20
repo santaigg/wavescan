@@ -23,8 +23,13 @@ export async function getSoloRankedLeaderboard() {
         return { error: error.message };
     }
 
-    // Cache the result
-    await redis.set(CACHE_KEY, JSON.stringify(data), {ex: CACHE_TTL});
+    const leaderboard = data.map((player, index) => ({
+        ...player,
+        rank: index + 1
+    }));
 
-    return { data };
+    // Cache the result
+    await redis.set(CACHE_KEY, JSON.stringify(leaderboard), {ex: CACHE_TTL});
+
+    return { leaderboard };
 }

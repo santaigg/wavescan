@@ -9,6 +9,7 @@ import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
 import { dumpPlayer, getDumpStatus } from "./dump/dump";
+import { searchPlayer } from "./search/search";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -253,6 +254,24 @@ const app = new Elysia()
 						const match = await addMatch(matchId);
 						return { ...match };
 					})
+			)
+			.group("/search", (app) =>
+				app
+					.group("/player", (app) =>
+						app
+							.get("/:playerName", async ({ params }) => {
+								const { playerName } = params;
+								console.log("[Search Route] - [GET] - /player/:playerName - ", playerName);
+								const search_results = await searchPlayer(playerName, 10, 0, true);
+								return { ...search_results };
+							}, {
+								detail: {
+									summary: "Search for a player by display name",
+									description: "",
+									tags: ["Search"],
+								},
+							})
+					)
 			)
 	)
 	.listen(3003);

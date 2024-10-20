@@ -91,13 +91,17 @@ export async function getDumpStatus(playerId: string): Promise<{
     let queue_position: number | null = null;
 
     queue_position = await client.lpos(QUEUE_KEY, lowerCasePlayerId);
+    const priority_queue_position = await client.lpos(PRIORITY_QUEUE_KEY, lowerCasePlayerId);
+    if (priority_queue_position !== null) {
+        queue_position = priority_queue_position;
+    }
 
     return {
         success: true,
         is_priority: cached?.initially_dumped ?? false,
         queue_position: queue_position ? queue_position + 1 : -1,
         initially_dumped: cached?.initially_dumped ?? false,
-        in_progress: queue_position !== null,
+        in_progress: queue_position !== null
     }
 }
 

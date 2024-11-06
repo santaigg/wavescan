@@ -247,6 +247,214 @@ const app = new Elysia()
 							summary: "Get Match from DB",
 							description: "Gets back a full match payload using the Match Id from the DB.",
 							tags: ["Match"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												"properties": {
+													"success": {
+														"type": "boolean"
+													},
+													"match": {
+														"required": [
+															"id",
+															"created_at",
+															"queue_name",
+															"queue_game_mode",
+															"queue_game_map",
+															"region",
+															"is_ranked",
+															"is_abandoned_match",
+															"match_date",
+															"raw_match_data",
+															"surrendered_team",
+															"updated_at",
+															"spectre_match_team"
+														],
+														"properties": {
+															"id": {
+																"type": "string"
+															},
+															"created_at": {
+																"type": "string"
+															},
+															"queue_name": {
+																"type": "string"
+															},
+															"queue_game_mode": {
+																"type": "string"
+															},
+															"queue_game_map": {
+																"type": "string"
+															},
+															"region": {
+																"type": "string"
+															},
+															"is_ranked": {
+																"type": "boolean"
+															},
+															"is_abandoned_match": {
+																"type": "boolean"
+															},
+															"match_date": {
+																"type": "string"
+															},
+															"raw_match_data": {
+																"type": "string"
+															},
+															"surrendered_team": {
+																"type": "number"
+															},
+															"spectre_match_team": {
+																"type": "array",
+																"items": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "string"
+																		},
+																		"team": {
+																			"type": "string"
+																		},
+																		"match": {
+																			"type": "string"
+																		},
+																		"created_at": {
+																			"type": "string"
+																		},
+																		"rounds_won": {
+																			"type": "number"
+																		},
+																		"team_index": {
+																			"type": "number"
+																		},
+																		"xp_per_round": {
+																			"type": "number"
+																		},
+																		"rounds_played": {
+																			"type": "number"
+																		},
+																		"fans_per_round": {
+																			"type": "number"
+																		},
+																		"used_team_rank": {
+																			"type": "boolean"
+																		},
+																		"current_rank_id": {
+																			"type": "number"
+																		},
+																		"previous_rank_id": {
+																			"type": "number"
+																		},
+																		"xp_per_round_won": {
+																			"type": "number"
+																		},
+																		"fans_per_round_won": {
+																			"type": "number"
+																		},
+																		"num_ranked_matches": {
+																			"type": "number"
+																		},
+																		"ranked_rating_delta": {
+																			"type": "number"
+																		},
+																		"spectre_match_player": {
+																			"type": "array",
+																			"items": {
+																				"type": "object",
+																				"properties": {
+																					"id": {
+																						"type": "number"
+																					},
+																					"crew": {
+																						"type": "string"
+																					},
+																					"team": {
+																						"type": "string"
+																					},
+																					"player": {
+																						"type": "string"
+																					},
+																					"division": {
+																						"type": "string"
+																					},
+																					"num_kills": {
+																						"type": "number"
+																					},
+																					"created_at": {
+																						"type": "string"
+																					},
+																					"crew_score": {
+																						"type": "number"
+																					},
+																					"num_deaths": {
+																						"type": "number"
+																					},
+																					"num_assists": {
+																						"type": "number"
+																					},
+																					"teammate_index": {
+																						"type": "number"
+																					},
+																					"current_rank_id": {
+																						"type": "number"
+																					},
+																					"previous_rank_id": {
+																						"type": "number"
+																					},
+																					"selected_sponsor": {
+																						"type": "string"
+																					},
+																					"saved_player_name": {
+																						"type": "string"
+																					},
+																					"total_damage_done": {
+																						"type": "number"
+																					},
+																					"num_ranked_matches": {
+																						"type": "number"
+																					},
+																					"saved_sponsor_name": {
+																						"type": "string"
+																					},
+																					"is_anonymous_player": {
+																						"type": "boolean"
+																					},
+																					"current_ranked_rating": {
+																						"type": "number"
+																					},
+																					"previous_ranked_rating": {
+																						"type": "number"
+																					},
+																					"selected_banner_catalog_id": {
+																						"type": "string"
+																					}
+																				}
+																			}
+																		},
+																		"current_ranked_rating": {
+																			"type": "number"
+																		},
+																		"is_full_team_in_party": {
+																			"type": "boolean"
+																		},
+																		"previous_ranked_rating": {
+																			"type": "number"
+																		}
+																	}
+																}
+															}
+														},
+														"type": "object"
+													}
+												},
+											},
+										},
+									},
+								},
+							}
 						},
 					})
 					.get("/:matchId/check", async ({ params }) => {

@@ -242,18 +242,36 @@ const app = new Elysia()
 						console.log("[Match Route] - [GET] - /:matchId - ", matchId);
 						const match = await getMatch(matchId);
 						return { ...match };
+					}, {
+						detail: {
+							summary: "Get Match from DB",
+							description: "Gets back a full match payload using the Match Id from the DB.",
+							tags: ["Match"],
+						},
 					})
 					.get("/:matchId/check", async ({ params }) => {
 						const { matchId } = params;
 						console.log("[Match Route] - [GET] - /:matchId/check - ", matchId);
 						const match = await checkMatch(matchId);
 						return { ...match };
+					}, {
+						detail: {
+							summary: "Check Match",
+							description: "Uses a Match Id to check if a match is available to pull from MT servers.",
+							tags: ["Match"],
+						}
 					})
 					.get("/:matchId/add", async ({ params }) => {
 						const { matchId } = params;
 						console.log("[Match Route] - [GET] - /:matchId/add - ", matchId);
 						const match = await addMatch(matchId);
 						return { ...match };
+					}, {
+						detail: {
+							summary: "Add Match to DB",
+							description: "Uses a Match Id to add a match to the DB. You likely should check the match first then use this endpoint to add it.",
+							tags: ["Match"],
+						}
 					})
 			)
 			.group("/search", (app) =>
@@ -267,8 +285,8 @@ const app = new Elysia()
 								return { ...search_results };
 							}, {
 								detail: {
-									summary: "Search for a player by display name",
-									description: "",
+									summary: "Search for a player by display name from DB",
+									description: "This uses the player's display name to search for a player in the DB.",
 									tags: ["Search"],
 								},
 							})

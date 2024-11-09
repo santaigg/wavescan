@@ -87,8 +87,21 @@ export async function getPlayerFullProfile(
 	const { data, error } = await db.client
 		.from("spectre_player")
 		.select(
-			"*, spectre_match_player ( *, spectre_match_team ( *, spectre_match ( *, spectre_match_team ( *, spectre_match_player ( * ) ) ) ) )"
-		)
+            `*, 
+            spectre_match_player!inner (
+                *,
+                spectre_match_team!inner (
+                    *,
+                    spectre_match!inner (
+                        *,
+                        spectre_match_team (
+                            *,
+                            spectre_match_player ( * )
+                        )
+                    )
+                )
+            )`
+        )
 		.eq("id", playerId);
 
 	if (error) {

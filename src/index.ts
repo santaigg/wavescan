@@ -4,7 +4,7 @@ import { bearer } from "@elysiajs/bearer";
 import * as Sentry from "@sentry/bun";
 import { Database } from "./database";
 import { Steam } from "./steam";
-import { getGameRanks, getPlayerFullProfile, getPlayerProfile } from "./player/player";
+import { getGameRanks, getPlayerConnections, getPlayerFullProfile, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
@@ -233,6 +233,88 @@ const app = new Elysia()
 							description: "Get the dump status of a player. This includes if they've been initially dumped, if they're currently being dumped, and their dump status.",
 							tags: ["Player"],
 						},
+					})
+					.get("/:playerId/connections", async ({ params }) => {
+						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/connections - ", playerId);
+						const connections = await getPlayerConnections(playerId);
+						return { ...connections };
+					}, {
+						/**
+						 * Example Response: {"success":true,"connections":[{"pragmaPlayerId":"8d02f2c0-69b8-4cee-9656-2d0866b44e9b","pragmaDisplayName":{"displayName":"truo","discriminator":"9622"},"idProviderAccounts":[{"idProviderType":"DISCORD","accountId":"132228986817216512","providerDisplayName":{"displayName":"truo","discriminator":""}},{"idProviderType":"STEAM","accountId":"76561198061346842","providerDisplayName":{"displayName":"truo","discriminator":""}},{"idProviderType":"TWITCH","accountId":"115376341","providerDisplayName":{"displayName":"truo","discriminator":""}}],"pragmaSocialId":"2a90914d-56ab-47bb-bb46-0442ee8b120e"}]}
+						 */
+						detail: {
+							summary: "Get Player Social Connections",
+							description: "Gets back a list of social connections for a player. (Example: Steam, Discord, etc.)",
+							tags: ["Player"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean",
+													},
+													connections: {
+														type: "array",
+														items: {
+															type: "object",
+															properties: {
+																pragmaPlayerId: {
+																	type: "string",
+																},
+																pragmaDisplayName: {
+																	type: "object",
+																	properties: {
+																		displayName: {
+																			type: "string",
+																		},
+																		discriminator: {
+																			type: "string",
+																		},
+																	},
+																},
+																idProviderAccounts: {
+																	type: "array",
+																	items: {
+																		type: "object",
+																		properties: {
+																			idProviderType: {
+																				type: "string",
+																			},
+																			accountId: {
+																				type: "string",
+																			},
+																			providerDisplayName: {
+																				type: "object",
+																				properties: {
+																					displayName: {
+																						type: "string",
+																					},
+																					discriminator: {
+																						type: "string",
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+													pragmaSocialId: {
+														type: "string",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						}
 					})
 			)
 			.group("/match", (app) =>

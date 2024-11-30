@@ -482,3 +482,9 @@ export function validPlayerId(playerId: string): boolean {
 	return /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(lowerCasePlayerId);
 }
 
+export async function getPlayerConnections(playerId: string): Promise<{ success: boolean, error?: string, connections?: any }> {
+    const getConnections = await fetch(`${process.env.SMOKESHIFT_APP_URL}/game-service/player-social-connections/${playerId}`);
+    const connections = await getConnections.json();
+
+	return { success: true, connections: connections };
+}

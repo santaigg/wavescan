@@ -329,6 +329,26 @@ const app = new Elysia()
 							summary: "Get Player ID from Connection ID",
 							description: "Gets back a player ID from a connection ID. This is useful for getting a player ID from a SteamID64, Discord ID, etc.",
 							tags: ["Player"],
+							parameters: [
+								{
+									name: "connectionType",
+									in: "path",
+									description: "The type of connection. (Example: STEAM, DISCORD, TWITCH, etc.)",
+									required: true,
+									schema: {
+										type: "string",
+									},
+								},
+								{
+									name: "connectionId",
+									in: "path",
+									description: "The ID of the connection. (Example: SteamID64, Discord ID, etc.)",
+									required: true,
+									schema: {
+										type: "string",
+									},
+								},
+							],
 							responses: {
 								200: {
 									description: "Success",

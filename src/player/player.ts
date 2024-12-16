@@ -1,4 +1,5 @@
-import type { ConnectionType, Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
+import type { Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
+import { ConnectionType } from "./player.types";
 import { Database } from "../database";
 import { Steam } from "../steam";
 
@@ -490,6 +491,11 @@ export async function getPlayerConnections(playerId: string): Promise<{ success:
 }
 
 export async function getPlayerIdByConnectionId(connectionType: ConnectionType, connectionId: string): Promise<{ success: boolean, error?: string, playerId?: string }> {
+	// If connectionType is not a valid ConnectionType, return an error
+	if(!Object.values(ConnectionType).includes(connectionType.toUpperCase() as ConnectionType)) {
+		return { success: false, error: "Invalid connection type" };
+	}
+
     const getConnections = await fetch(`${process.env.SMOKESHIFT_APP_URL}/game-service/player-id-from-connection/${connectionType}/${connectionId}`);
     const connections = await getConnections.json();
 

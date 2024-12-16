@@ -4,13 +4,14 @@ import { bearer } from "@elysiajs/bearer";
 import * as Sentry from "@sentry/bun";
 import { Database } from "./database";
 import { Steam } from "./steam";
-import { getGameRanks, getPlayerConnections, getPlayerFullProfile, getPlayerProfile } from "./player/player";
+import { getGameRanks, getPlayerConnections, getPlayerFullProfile, getPlayerIdByConnectionId, getPlayerProfile } from "./player/player";
 import cors from "@elysiajs/cors";
 import { addMatch, checkMatch, getMatch } from "./match/match";
 import { getPlayerIdFromSteamId } from "./steam/steam";
 import { dumpPlayer, getDumpStatus } from "./dump/dump";
 import { searchPlayer } from "./search/search";
 import { getSoloRankedLeaderboard } from "./leaderboard/leaderboard";
+import { ConnectionType } from "./player/player.types";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -315,6 +316,44 @@ const app = new Elysia()
 								},
 							},
 						}
+					})
+					.get("/player-id-from-connection/:connectionType/:connectionId", async ({ params }) => {
+						const { connectionType, connectionId } = params;
+						// Convert connectionType to ConnectionType enum uppercase
+						const connectionTypeUpper = connectionType.toUpperCase() as ConnectionType;
+						console.log("[Player Route] - [GET] - /player-id-from-connection/:connectionType/:connectionId - ", connectionTypeUpper, connectionId);
+						const player_id = await getPlayerIdByConnectionId(connectionTypeUpper, connectionId);
+						return { ...player_id };
+					}, {
+						detail: {
+							summary: "Get Player ID from Connection ID",
+							description: "Gets back a player ID from a connection ID. This is useful for getting a player ID from a SteamID64, Discord ID, etc.",
+							tags: ["Player"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean",
+													},
+													player_id: {
+														type: "string",
+													},
+													error: {
+														type: "string",
+														nullable: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					})
 			)
 			.group("/match", (app) =>

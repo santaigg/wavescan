@@ -1,4 +1,4 @@
-import type { Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
+import type { ConnectionType, Match_Team, PlayerExtendedStats, PlayerFullProfile, PlayerMatch, PlayerProfile, SeasonStats } from "./player.types";
 import { Database } from "../database";
 import { Steam } from "../steam";
 
@@ -487,4 +487,19 @@ export async function getPlayerConnections(playerId: string): Promise<{ success:
     const connections = await getConnections.json();
 
 	return { success: true, connections: connections };
+}
+
+export async function getPlayerIdByConnectionId(connectionType: ConnectionType, connectionId: string): Promise<{ success: boolean, error?: string, playerId?: string }> {
+    const getConnections = await fetch(`${process.env.SMOKESHIFT_APP_URL}/game-service/player-id-from-connection/${connectionType}/${connectionId}`);
+    const connections = await getConnections.json();
+
+    if(connections.error) {
+        return { success: false, error: connections.error };
+    }
+
+	if(!connections.playerId) {
+		return { success: false, error: "Player not found" };
+	}
+
+    return { success: true, playerId: connections.playerId };
 }

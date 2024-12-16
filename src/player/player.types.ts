@@ -123,3 +123,8 @@ export interface PlayerFullProfile extends PlayerProfile {
     }
   }
   
+export enum ConnectionType {
+  DISCORD = "DISCORD",
+  STEAM = "STEAM",
+  TWITCH = "TWITCH",
+}

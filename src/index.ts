@@ -375,6 +375,87 @@ const app = new Elysia()
 							},
 						},
 					})
+					.get("/:playerId/steam_profile", async ({ params }) => {
+						const { playerId } = params;
+						console.log("[Player Route] - [GET] - /:playerId/steam_profile - ", playerId);
+						
+						// Get Steam account from player_account table
+						const { data: accounts, error: accountError } = await db.client
+							.from("spectre_player_account")
+							.select("*")
+							.eq("player", playerId)
+							.eq("provider_type", "STEAM");
+
+						if (accountError) {
+							return { success: false, error: accountError.message };
+						}
+
+						if (!accounts || accounts.length === 0) {
+							return { success: false, error: "No Steam account found for this player" };
+						}
+
+						const steamAccountId = accounts[0].account_id;
+						
+						try {
+							const steamProfile = await steam.client.getUserSummary(steamAccountId);
+							return { 
+								success: true, 
+								steam_profile: steamProfile 
+							};
+						} catch (error) {
+							return { 
+								success: false, 
+								error: "Failed to fetch Steam profile" 
+							};
+						}
+					}, {
+						detail: {
+							summary: "Get Player's Steam Profile",
+							description: "Gets the Steam profile information for a player using their player ID",
+							tags: ["Player"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean"
+													},
+													steam_profile: {
+														type: "object",
+														properties: {
+															avatar: {
+																type: "object",
+																properties: {
+																	small: { type: "string" },
+																	medium: { type: "string" },
+																	large: { type: "string" }
+																}
+															},
+															nickname: { type: "string" },
+															url: { type: "string" },
+															created: { type: "number" },
+															lastLogOff: { type: "number" },
+															countryCode: { type: "string" },
+															profileState: { type: "number" },
+															personaState: { type: "number" }
+														}
+													},
+													error: {
+														type: "string",
+														nullable: true
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					})
 			)
 			.group("/match", (app) =>
 				app

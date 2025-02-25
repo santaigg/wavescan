@@ -12,6 +12,7 @@ import { dumpPlayer, getDumpStatus } from "./dump/dump";
 import { searchPlayer } from "./search/search";
 import { getSoloRankedLeaderboard } from "./leaderboard/leaderboard";
 import { ConnectionType } from "./player/player.types";
+import { getGlobalSponsorStats } from "./sponsor/sponsor";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -26,6 +27,9 @@ Sentry.init({
   // Tracing
   tracesSampleRate: 1.0, // Capture 100% of the transactions
 });
+
+// Default timeout is 10 seconds, but we'll use 60 seconds for the server
+const SERVER_TIMEOUT = 60000; // 60 seconds
 
 const app = new Elysia()
 	.use(swagger({
@@ -750,9 +754,89 @@ const app = new Elysia()
 						},
 					})
 			)
+			.group("/sponsor", (app) =>
+				app
+					.get("/stats", async () => {
+						console.log("[Sponsor Route] - [GET] - /stats");
+						const stats = await getGlobalSponsorStats();
+						return { ...stats };
+					}, {
+						detail: {
+							summary: "Get Global Sponsor Statistics",
+							description: "Get global statistics for all sponsors including usage, wins, losses, kills, deaths, etc.",
+							tags: ["Sponsor"],
+							responses: {
+								200: {
+									description: "Success",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													success: {
+														type: "boolean"
+													},
+													stats: {
+														type: "object",
+														properties: {
+															total_players: {
+																type: "number",
+																description: "Total number of players with sponsor data"
+															},
+															sponsors: {
+																type: "array",
+																items: {
+																	type: "object",
+																	properties: {
+																		sponsor_id: {
+																			type: "string"
+																		},
+																		sponsor_name: {
+																			type: "string"
+																		},
+																		picks: {
+																			type: "number",
+																			description: "Number of times this sponsor was selected"
+																		},
+																		total_wins: {
+																			type: "number"
+																		},
+																		total_losses: {
+																			type: "number"
+																		},
+																		total_draws: {
+																			type: "number"
+																		},
+																		total_kills: {
+																			type: "number"
+																		},
+																		total_deaths: {
+																			type: "number"
+																		},
+																		total_assists: {
+																			type: "number"
+																		}
+																	}
+																}
+															}
+														}
+													},
+													error: {
+														type: "string",
+														nullable: true
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+					})
+			)
 	)
 	.listen(3003);
 
 console.log(
-	`🔥 Wavescan is running at ${app.server?.hostname}:${app.server?.port}`,
+	`🔥 Wavescan is running at ${app.server?.hostname}:${app.server?.port} with timeout of ${SERVER_TIMEOUT}ms`,
 );

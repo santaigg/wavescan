@@ -724,14 +724,26 @@ const app = new Elysia()
 			)
 			.group("/leaderboard", (app) =>
 				app
-					.get("/solo_ranked", async () => {
-						const leaderboard = await getSoloRankedLeaderboard();
+					.get("/solo_ranked", async ({ query }: { query: { season?: string } }) => {
+						const season = query.season !== undefined ? parseInt(query.season as string) : undefined;
+						const leaderboard = await getSoloRankedLeaderboard(season);
 						return { ...leaderboard };
 					}, {
 						detail: {
 							summary: "Get Solo Ranked Leaderboard",
-							description: "",
+							description: "Get the solo ranked leaderboard. Optionally filter by season.",
 							tags: ["Leaderboard"],
+							parameters: [
+								{
+									name: "season",
+									in: "query",
+									description: "Season number to filter by (e.g. 0, 1, 2)",
+									required: false,
+									schema: {
+										type: "integer"
+									}
+								}
+							]
 						},
 					})
 			)

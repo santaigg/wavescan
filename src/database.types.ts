@@ -686,7 +686,9 @@ export type Database = {
     }
     Functions: {
       get_solo_ranked_leaderboard: {
-        Args: Record<PropertyKey, never>
+        Args: {
+          season?: number
+        }
         Returns: {
           id: string
           display_name: string

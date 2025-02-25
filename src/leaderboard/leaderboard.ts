@@ -16,7 +16,7 @@ export async function getSoloRankedLeaderboard(season?: number) {
 
     if (cachedLeaderboard) {
         console.log(`Cache hit for solo ranked leaderboard${season !== undefined ? ` for season ${season}` : ''}`);
-        return { leaderboard: JSON.parse(cachedLeaderboard) };
+        return { leaderboard: typeof cachedLeaderboard === 'string' ? JSON.parse(cachedLeaderboard) : cachedLeaderboard };
     }
 
     // If not in cache, fetch from database

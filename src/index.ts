@@ -726,6 +726,9 @@ const app = new Elysia()
 				app
 					.get("/solo_ranked", async ({ query }: { query: { season?: string } }) => {
 						const season = query.season !== undefined ? parseInt(query.season as string) : undefined;
+						if (season !== undefined && (season < 0 || season > 2)) {
+							return { success: false, error: "Invalid season" };
+						}
 						const leaderboard = await getSoloRankedLeaderboard(season);
 						return { ...leaderboard };
 					}, {

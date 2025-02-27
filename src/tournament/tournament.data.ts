@@ -375,10 +375,6 @@ export async function fetchTournament(tournamentId: string): Promise<{ success: 
  */
 export async function updateTournament(tournamentId: string, data: TournamentData): Promise<{ success: boolean, data?: TournamentData, error?: string }> {
   try {
-    // Check if user is authenticated as admin
-    if (!isAdminAuthenticated()) {
-      return { success: false, error: "Unauthorized: Admin authentication required" };
-    }
     
     console.log(`Updating tournament data for ID: ${tournamentId}`);
     

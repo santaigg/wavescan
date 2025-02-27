@@ -56,6 +56,7 @@ export interface MatchStats {
   };
   status: "upcoming" | "live" | "completed";
   round: string;
+  map: string; // Map name for the match
   scheduledTime?: string; // Optional scheduled time for upcoming matches
 }
 

@@ -46,6 +46,7 @@ export const createDefaultMatch = (id: string, round: string): MatchStats => ({
   },
   status: "upcoming",
   round,
+  map: "Canal",
   scheduledTime: "TBD"
 });
 
@@ -145,6 +146,7 @@ export const defaultTournamentData: TournamentData = {
       },
       status: "completed",
       round: "Quarter Finals",
+      map: "Canal"
     },
     {
       id: "match2",
@@ -234,6 +236,7 @@ export const defaultTournamentData: TournamentData = {
       },
       status: "live",
       round: "Semi Finals",
+      map: "Highrise"
     },
     {
       id: "match3",
@@ -317,6 +320,7 @@ export const defaultTournamentData: TournamentData = {
       },
       status: "upcoming",
       round: "Finals",
+      map: "Rust"
     },
   ],
 };

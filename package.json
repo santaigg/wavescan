@@ -14,8 +14,10 @@
 		"@elysiajs/swagger": "^1.1.5",
 		"@sentry/bun": "^8.34.0",
 		"@supabase/supabase-js": "^2.45.4",
+		"@types/js-cookie": "^3.0.6",
 		"@upstash/redis": "^1.34.3",
 		"elysia": "latest",
+		"js-cookie": "^3.0.5",
 		"steamapi": "^3.0.12"
 	},
 	"devDependencies": {

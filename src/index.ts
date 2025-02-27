@@ -13,6 +13,8 @@ import { searchPlayer } from "./search/search";
 import { getSoloRankedLeaderboard } from "./leaderboard/leaderboard";
 import { ConnectionType } from "./player/player.types";
 import { getGlobalSponsorStats } from "./sponsor/sponsor";
+import { fetchTournament, updateTournament, addMatch as addTournamentMatch, updateMatch as updateTournamentMatch, deleteMatch as deleteTournamentMatch, resetTournamentData, createDefaultMatch, authenticateAdmin, isAdminAuthenticated, logoutAdmin } from "./tournament";
+import { TournamentData, MatchStats } from "./tournament/tournament.types";
 
 const db = Database.getInstance();
 const steam = Steam.getInstance();
@@ -832,6 +834,140 @@ const app = new Elysia()
 								}
 							}
 						},
+					})
+			)
+			.group("/tournament", (app) =>
+				app
+					.get("/", async ({ query }) => {
+						const tournamentId = query.id || 'default';
+						console.log("[Tournament Route] - [GET] - / - Tournament ID:", tournamentId);
+						const result = await fetchTournament(tournamentId);
+						return result;
+					}, {
+						detail: {
+							summary: "Get Tournament Data",
+							description: "Retrieves tournament data from Redis",
+							tags: ["Tournament"],
+							parameters: [
+								{
+									name: "id",
+									in: "query",
+									description: "Tournament ID (defaults to 'default')",
+									required: false,
+									schema: {
+										type: "string"
+									}
+								}
+							]
+						}
+					})
+					.post("/", async ({ query, body }) => {
+						const tournamentId = query.id || 'default';
+						const action = query.action as string;
+						console.log(`[Tournament Route] - [POST] - / - Tournament ID: ${tournamentId}, Action: ${action}`);
+						
+						// Handle authentication actions without requiring auth
+						if (action === 'auth') {
+							const { password } = body as { password: string };
+							if (!password) {
+								return { success: false, error: 'Missing password' };
+							}
+							const authResult = authenticateAdmin(password);
+							return authResult;
+						}
+						
+						if (action === 'logout') {
+							const logoutResult = logoutAdmin();
+							return logoutResult;
+						}
+						
+						// // Check authentication for all other actions
+						// if (!isAdminAuthenticated()) {
+						// 	return { success: false, error: 'Unauthorized: Admin authentication required' };
+						// }
+						
+						// Handle different actions
+						switch (action) {
+							case 'update': {
+								const data = body as TournamentData;
+								return await updateTournament(tournamentId, data);
+							}
+							
+							case 'add-match': {
+								const match = body as MatchStats;
+								return await addTournamentMatch(tournamentId, match);
+							}
+							
+							case 'update-match': {
+								const { matchId, match } = body as { matchId: string, match: MatchStats };
+								if (!matchId || !match) {
+									return { success: false, error: 'Missing matchId or match data' };
+								}
+								return await updateTournamentMatch(tournamentId, matchId, match);
+							}
+							
+							case 'delete-match': {
+								const { matchId } = body as { matchId: string };
+								if (!matchId) {
+									return { success: false, error: 'Missing matchId' };
+								}
+								return await deleteTournamentMatch(tournamentId, matchId);
+							}
+							
+							case 'reset': {
+								return await resetTournamentData(tournamentId);
+							}
+							
+							case 'create-match': {
+								const { round } = body as { round: string };
+								if (!round) {
+									return { success: false, error: 'Missing round information' };
+								}
+								const matchId = `match_${Date.now()}`;
+								const newMatch = createDefaultMatch(matchId, round);
+								const result = await addTournamentMatch(tournamentId, newMatch);
+								
+								if (result.success && result.data) {
+									return { 
+										success: true,
+										tournament: result.data,
+										newMatch
+									};
+								} else {
+									return { success: false, error: result.error || 'Failed to create match' };
+								}
+							}
+							
+							default:
+								return { success: false, error: 'Invalid action' };
+						}
+					}, {
+						detail: {
+							summary: "Manage Tournament Data",
+							description: "Perform various operations on tournament data",
+							tags: ["Tournament"],
+							parameters: [
+								{
+									name: "id",
+									in: "query",
+									description: "Tournament ID (defaults to 'default')",
+									required: false,
+									schema: {
+										type: "string"
+									}
+								},
+								{
+									name: "action",
+									in: "query",
+									description: "Action to perform (update, add-match, update-match, delete-match, reset, create-match, auth, logout)",
+									required: true,
+									schema: {
+										type: "string",
+										enum: ["update", "add-match", "update-match", "delete-match", "reset", "create-match", "auth", "logout"]
+									}
+								}
+							]
+						}
 					})
 			)
 	)

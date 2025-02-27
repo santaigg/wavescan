@@ -4,9 +4,9 @@
 
 export const config = {
   // Admin authentication
-  adminCookieName: process.env.ADMIN_COOKIE_NAME || 'optic_tournament_admin',
-  adminTokenValue: process.env.ADMIN_TOKEN_VALUE || 'optic-admin-token',
-  adminPassword: process.env.ADMIN_PASSWORD || 'opticadmin',
+  adminCookieName: process.env.ADMIN_COOKIE_NAME,
+  adminTokenValue: process.env.ADMIN_TOKEN_VALUE,
+  adminPassword: process.env.ADMIN_PASSWORD,
   
   // Redis cache
   tournamentKeyPrefix: process.env.TOURNAMENT_KEY_PREFIX || 'wv:tournament:data:',
